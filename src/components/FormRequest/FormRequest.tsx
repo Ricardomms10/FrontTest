@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import style from './FormRequest.module.scss'
 
 interface FormData {
     userId: string;
@@ -7,7 +8,7 @@ interface FormData {
     destination: string;
 }
 
-const FormRequest: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmit }) => {
+const FormRequest: React.FC<{ onSubmit: (data: any) => void }> = ({ onSubmit }) => {
     const [formData, setFormData] = useState<FormData>({
         userId: '',
         origin: '',
@@ -18,7 +19,7 @@ const FormRequest: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmi
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const updatedData = { ...formData, [e.target.name]: e.target.value };
         setFormData(updatedData);
-        console.log("Dados atualizados:", updatedData);
+        console.log('Dados atualizados:', updatedData);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -29,22 +30,26 @@ const FormRequest: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmi
             setError('Todos os campos são obrigatórios.');
             return;
         }
-
+        console.log('Dados enviados:', formData);
         try {
             const response = await axios.post('http://localhost:8080/ride/estimate', formData);
-            console.log('Resposta do servidor:', response.data);
+            console.log('Resposta do servidor:', response);
+
+            // Invocar a função passada via props com os dados da resposta
+            onSubmit(response.data);
         } catch (error) {
             if (axios.isAxiosError(error)) {
                 console.error('Erro do servidor:', error.response?.data || 'Erro desconhecido no servidor');
+                setError(error.response?.data?.message || 'Erro ao estimar a viagem.');
             } else {
                 console.error('Erro inesperado:', error);
+                setError('Erro inesperado. Tente novamente.');
             }
         }
-        
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className={style.container}>
             <input
                 type="text"
                 name="userId"
@@ -67,7 +72,7 @@ const FormRequest: React.FC<{ onSubmit: (data: FormData) => void }> = ({ onSubmi
                 onChange={handleChange}
             />
             <button type="submit">Estimativa</button>
-            {error && <div>{error}</div>}
+            {error && <div style={{ color: 'red' }}>{error}</div>}
         </form>
     );
 };

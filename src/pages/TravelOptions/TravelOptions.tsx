@@ -1,6 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import style from './TravelOptions.module.scss'
 
 const TravelOptions: React.FC = () => {
     const location = useLocation();
@@ -20,10 +21,9 @@ const TravelOptions: React.FC = () => {
     };
 
     return (
-        <div>
+        <div className={style.container}>
             <h1>Opções de Viagem</h1>
-            <div>
-                {/* Map component should be here */}
+            <div className={style.boxText}>
                 <p>Rota de {tripData.origin} para {tripData.destination}</p>
                 <div>
                     {tripData.drivers.map((driver: any) => (
